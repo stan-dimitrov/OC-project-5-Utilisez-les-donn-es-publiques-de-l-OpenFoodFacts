@@ -9,21 +9,31 @@ db = Database.Database(constants.DB_HOST, constants.DB_PWD, constants.DB_USER, c
 db.create_db()
 '''
 
+
+def read_number():
+    user_input = input()
+    while not user_input.isdigit():
+        print("\nPlease enter a correct number for your chosen category")
+        user_input = input()
+
+    return int(user_input)
+
 open_food = OpenFood.OpenFood(constants.DB_HOST, constants.DB_PWD, constants.DB_USER, constants.DB_NAME)
+
 open_food.list_categories()
 
 user_choice = 0
 while 1:
     print("\nWhich category do you want to browse?")
-    id_category = int(input())
-    open_food.list_foods(id_category)
+    category_id = read_number()
+    open_food.list_foods(category_id)
 
     while 1:
         print("\nWhich food do you want to review the ingredients for?")
-        id_food = int(input())
+        id_food = read_number()
         food_has_substitutes = open_food.select_food(id_food)
 
-        if food_has_substitutes == False:
+        if not food_has_substitutes:
             print("\nYou have chosen the food with the best nutri score in this category. Bravo!")
             print("\nThank you for using our services!")
             break
@@ -48,3 +58,5 @@ while 1:
         break
 
     break
+
+

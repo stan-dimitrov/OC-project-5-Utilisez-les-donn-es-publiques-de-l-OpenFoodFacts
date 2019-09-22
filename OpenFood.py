@@ -67,9 +67,6 @@ class OpenFood:
             prod_name = str(prod_name_saved[x])
             ingrdts_saved = [d.get('ingredients_text_fr') for d in test2]  # get ingredients list in french
             ingrdts = str(ingrdts_saved[x])
-            '''ingredts = unidecode.unidecode(ingrdts)'''
-            '''ingredts2 = ingredts.replace("'", "")'''
-            '''ingredts3 = ingredts.replace("*", "")'''
             nutri_grd_saved = [d.get('nutrition_grade_fr') for d in test2]  # get nutrigrade
             nutri_grd = str(nutri_grd_saved[x])
             bar_code_saved = [d.get('id') for d in test2]  # get barcode
@@ -90,13 +87,16 @@ class OpenFood:
 
     def select_food(self, id_food):
         cursor = self.db.cursor(buffered=True)
-        select_food = ("SELECT food, ingredient, nutriscore FROM Food WHERE id = " + str(id_food))
+        select_food = ("SELECT category, food, ingredient, nutriscore, bar_code FROM Food WHERE id = " + str(id_food))
         cursor.execute(select_food)
         data = cursor.fetchone()
 
-        food_name = data[0]
-        food_ingredients = data[1]
-        food_nutri_score = data[2]
+        food_category = data[0]
+        food_name = data[1]
+        food_ingredients = data[2]
+        food_nutri_score = data[3]
+        food_bar_code = data[4]
+
 
         existing_substitutes_query = (
                     "SELECT * FROM Food WHERE nutriscore <= " + "'" + food_nutri_score + "' and id != " + str(
@@ -105,9 +105,12 @@ class OpenFood:
         if cursor.rowcount == 0:
             return False
 
+        print("category: " + food_category)
         print("Food: " + food_name)
         print("Ingredients: " + food_ingredients)
         print("Nutri Score: " + food_nutri_score)
+        print("bar_code: " + str(food_bar_code))
+
 
         return True
 
@@ -117,19 +120,23 @@ class OpenFood:
         cursor.execute(old_nutri_score_query)
         old_nutri_score = str(cursor.fetchone()[0])
 
-        new_nutri_score_query = ("SELECT food, ingredient, nutriscore FROM Food WHERE nutriscore <= " + "'" + old_nutri_score + "' and id != " + str(id_food))
+        new_nutri_score_query = ("SELECT category, food, ingredient, nutriscore, bar_code FROM Food WHERE nutriscore <= " + "'" + old_nutri_score + "' and id != " + str(id_food))
         cursor.execute(new_nutri_score_query)
 
         new_food = cursor.fetchone()
 
-        food_name = new_food[0]
-        food_ingredients = new_food[1]
-        food_nutri_score = new_food[2]
+        food_category = new_food[0]
+        food_name = new_food[1]
+        food_ingredients = new_food[2]
+        food_nutri_score = new_food[3]
+        food_bar_code = new_food[4]
 
         print("\nYour substitute:")
+        print("category:" + food_category)
         print("Food: " + food_name)
         print("Ingredients: " + food_ingredients)
         print("Nutri Score: " + food_nutri_score)
+        print("bar_code" + str(food_bar_code))
 
     def save_substitute(self, id_food):
         cursor = self.db.cursor(buffered=True)
